@@ -421,12 +421,20 @@ void BareMetal::AddClangSystemIncludeArgs(const ArgList &DriverArgs,
       llvm::sys::path::append(Dir, "include");
       addSystemInclude(DriverArgs, CC1Args, Dir.str());
     }
+    // For clang-runtimes, sysroot is typically lib/clang-runtimes, so we
+    // need to append the triple to get the include directory.
     SmallString<128> Dir(SysRootDir);
     llvm::sys::path::append(Dir, getTripleString());
     if (D.getVFS().exists(Dir)) {
       llvm::sys::path::append(Dir, "include");
       addSystemInclude(DriverArgs, CC1Args, Dir.str());
     }
+
+    // For GCC installations, sysroot already includes the triple (e.g.,
+    // .../riscv64-unknown-elf), so add sysroot/include directly.
+    Dir = SysRootDir;
+    llvm::sys::path::append(Dir, "include");
+    addSystemInclude(DriverArgs, CC1Args, Dir.str());
   }
 }
 
